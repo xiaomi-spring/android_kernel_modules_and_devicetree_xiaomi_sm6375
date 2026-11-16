@@ -12911,6 +12911,13 @@ static uint32_t wlan_hdd_populate_weigh_pcl(
 		else
 			w_pcl[i].flag = PCL_CHANNEL_SUPPORT_CLI;
 	}
+
+	/* Do not add MCC or unsupported ch in p2p prefer list */
+	if (intf_mode == PM_P2P_GO_MODE || intf_mode == PM_P2P_CLIENT_MODE) {
+		hdd_debug("Do not add MCC or unsupported ch in p2p prefer list");
+		return pcl_len;
+	}
+
 	chan_idx = pcl_len;
 	if (!conn_count || policy_mgr_is_hw_dbs_capable(psoc) ||
 	    policy_mgr_is_interband_mcc_supported(psoc)) {

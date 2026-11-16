@@ -30,6 +30,7 @@
 #include <linux/msm_audio.h>
 #include <linux/qcom_scm.h>
 #include <soc/qcom/secure_buffer.h>
+#include <miev/mievent.h>
 
 MODULE_IMPORT_NS(DMA_BUF);
 
@@ -545,6 +546,7 @@ static int msm_audio_ion_import(struct dma_buf **dma_buf, int fd,
 		rc = msm_audio_ion_buf_map(*dma_buf, paddr, plen, iosys_vmap, ion_data);
 		if (rc) {
 			pr_err("%s: failed to map ION buf, rc = %d\n", __func__, rc);
+			mievent_report(906001431, rc);
 			goto err;
 		}
 		pr_debug("%s: mapped address = %pK, size=%zd\n", __func__,
@@ -998,6 +1000,21 @@ int __init msm_audio_ion_init(void)
 void msm_audio_ion_exit(void)
 {
 	platform_driver_unregister(&msm_audio_ion_driver);
+}
+
+int mievent_report(unsigned int eventid,int status)
+{
+	struct misight_mievent *mievent = NULL;
+	pr_debug("%s: Status = %d DFS report\n", __func__, status);
+	mievent  = cdev_tevent_alloc(eventid);
+	if (!mievent) {
+		pr_err("%s: Failed to allocate mievent\n", __func__);
+		return -ENOMEM;
+	}
+	cdev_tevent_add_int(mievent, "Status", status);
+	cdev_tevent_write(mievent);
+	cdev_tevent_destroy(mievent);
+	return 0;
 }
 
 module_init(msm_audio_ion_init);
