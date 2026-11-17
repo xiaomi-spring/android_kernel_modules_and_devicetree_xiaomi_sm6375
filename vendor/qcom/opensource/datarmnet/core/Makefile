@@ -40,6 +40,7 @@ M ?= $(PWD)
 
 KBUILD_OPTIONS := RMNET_CORE_ROOT=$(KERNEL_SRC)/$(M)
 KBUILD_OPTIONS += MODNAME?=rmnet_core
+KBUILD_OPTIONS += KBUILD_EXTRA_SYMBOLS=$(M)/../../datarmnet-ext/mem/Module.symvers
 
 all:
 	$(MAKE) -C $(KERNEL_SRC) M=$(M) modules $(KBUILD_OPTIONS)
